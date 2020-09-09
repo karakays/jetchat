@@ -1,0 +1,24 @@
+version: '3'
+services:
+  redis:
+    image: "redis:3.0.6"
+    ports:
+      - "6379:6379"
+  cassandra:
+    image: "cassandra:3.0"
+    ports:
+      - "9042:9042"
+  postgres:
+    image: "postgres:9.6"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+      POSTGRES_DB: chat-db
+  rabbitmq-stomp:
+    image: "jorgeacetozi/rabbitmq-stomp:3.6"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "61613:61613"
