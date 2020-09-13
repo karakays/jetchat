@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -37,7 +38,7 @@ public class ChatRoomController {
 
 	private final HttpSession session;
 
-	public  ChatRoomController(ChatRoomService chatRoomService, InstantMessageService instantMessageService,
+	public ChatRoomController(ChatRoomService chatRoomService, InstantMessageService instantMessageService,
 							   HttpSession httpSession) {
 		this.chatRoomService = chatRoomService;
 		this.instantMessageService = instantMessageService;
@@ -96,20 +97,20 @@ public class ChatRoomController {
 		}
 	}
 
-	@SubscribeMapping("/connected.users")
-	public List<ChatRoomUser> listChatRoomConnectedUsersOnSubscribe(SimpMessageHeaderAccessor headerAccessor) {
-		log.info("Subscribed to {} with session id={}, attributes={}, subscriptionId={}, user={}",
+	@SubscribeMapping("/{chatroomId}/connected.users")
+	public List<ChatRoomUser> listChatRoomConnectedUsersOnSubscribe(SimpMessageHeaderAccessor headerAccessor,
+																	@DestinationVariable("chatroomId") String roomId) {
+		log.debug("Subscribed to {} with session id={}, attributes={}, subscriptionId={}, user={}",
 				headerAccessor.getDestination(), headerAccessor.getSessionId(), headerAccessor.getSessionAttributes(),
 				headerAccessor.getSubscriptionId(), headerAccessor.getUser());
-		String chatRoomId = headerAccessor.getSessionAttributes().get("chatRoomId").toString();
-		return chatRoomService.findById(chatRoomId).getConnectedUsers();
+		return chatRoomService.findById(roomId).getConnectedUsers();
 	}
 
-	@SubscribeMapping("/old.messages")
+	@SubscribeMapping("/{chatroomId}/old.messages")
 	public List<InstantMessage> listOldMessagesFromUserOnSubscribe(Principal principal,
-                                                                   SimpMessageHeaderAccessor headerAccessor) {
-		String chatRoomId = headerAccessor.getSessionAttributes().get("chatRoomId").toString();
-		return instantMessageService.findAllInstantMessagesFor(principal.getName(), chatRoomId);
+                                                                   SimpMessageHeaderAccessor headerAccessor,
+																   @DestinationVariable("chatroomId") String roomId) {
+		return instantMessageService.findAllInstantMessagesFor(principal.getName(), roomId);
 	}
 
 	@MessageMapping("/send.message")
