@@ -51,13 +51,13 @@
 </nav>
 
 <div class="container" style="margin-top: 70px;">
-    <h3 class="text-center" th:text="|#{chatroom.title}: ${chatRoom.name}|">Awesome Chat Room</h3>
+    <h3 id="chatroom-banner" class="text-center" th:text="|#{chatroom.title}: ${chatRoom.name}|">Awesome Chat Room</h3>
     <hr/>
     <div class="row">
         <div class="col-lg-2 col-sm-2">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h1 class="panel-title" th:text="#{chatroom.users}">Channels</h1>
+                    <h1 class="panel-title" >Channels</h1>
                 </div>
                 <div class="panel-body"
                      style="height: 350px; overflow-y: scroll;">
@@ -72,8 +72,12 @@
 
         <div class="col-lg-8 col-sm-8">
             <div class="panel panel-default">
-                <div id="newMessages" class="panel-body" style="height: 435px; overflow-y: scroll;">
+                <div  class="panel-body" style="height: 435px; overflow-y: scroll;">
+                    <div id="newMessages">
+                        <div id="messages">
 
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -121,10 +125,8 @@
 <script th:inline="javascript">
 
 $(document).ready(function() {
-	var stompClient = null;
-	var socket = null;
-	var chatRoomId = /*[[${chatRoom.id}]]*/;
-	window.chatRoomId = chatRoomId;
+<!--	var chatRoomId = /*[[${chatRoom.id}]]*/;-->
+<!--	window.chatRoomId = chatRoomId;-->
 	window.inputMessage = $("#message");
 	window.btnSend = $("#send");
 	var btnDisconnect = $("#disconnect");
@@ -140,8 +142,8 @@ $(document).ready(function() {
 		inputMessage.focus();
 	});
 
-	connect(chatRoomId);
-	bindConnectedUsers();
+	connect();
+	// bindConnectedUsers();
 	scrollDownMessagesPanel(newMessages);
 	disableInputMessage();
 	loadChannels();
