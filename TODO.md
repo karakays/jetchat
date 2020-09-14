@@ -1,5 +1,10 @@
-### Features
+## Features
 
-#### Search text in channels
+### Search text in channels
 
-#### Search users
+### Search users
+
+
+## Spike
+
+### Websocket sessions vs. http sessions?
