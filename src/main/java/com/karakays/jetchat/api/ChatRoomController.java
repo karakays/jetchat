@@ -98,12 +98,13 @@ public class ChatRoomController {
 	}
 
 	@SubscribeMapping("/{chatroomId}/connected.users")
-	public List<ChatRoomUser> listChatRoomConnectedUsersOnSubscribe(SimpMessageHeaderAccessor headerAccessor,
-																	@DestinationVariable("chatroomId") String roomId) {
+	public List<ChatRoomUser> listChatRoomConnectedUsersOnSubscribe(Principal principal,
+            SimpMessageHeaderAccessor headerAccessor, @DestinationVariable("chatroomId") String chatRoomId) {
 		log.debug("Subscribed to {} with session id={}, attributes={}, subscriptionId={}, user={}",
 				headerAccessor.getDestination(), headerAccessor.getSessionId(), headerAccessor.getSessionAttributes(),
 				headerAccessor.getSubscriptionId(), headerAccessor.getUser());
-		return chatRoomService.findById(roomId).getConnectedUsers();
+		chatRoomService.join(new ChatRoomUser(principal.getName()), chatRoomService.findById(chatRoomId));
+		return chatRoomService.findById(chatRoomId).getConnectedUsers();
 	}
 
 	@SubscribeMapping("/{chatroomId}/old.messages")
@@ -113,13 +114,13 @@ public class ChatRoomController {
 		return instantMessageService.findAllInstantMessagesFor(principal.getName(), roomId);
 	}
 
-	@MessageMapping("/send.message")
+	@MessageMapping("/{chatroomId}/send.message")
 	public void sendMessage(@Payload InstantMessage instantMessage, Principal principal,
+							@DestinationVariable("chatroomId") String chatRoomId,
 			SimpMessageHeaderAccessor headerAccessor) {
 		log.info("{} sending message with session id={}, attributes={}, subscriptionId={}",
 				headerAccessor.getDestination(), headerAccessor.getSessionId(), headerAccessor.getSessionAttributes(),
 				headerAccessor.getSubscriptionId());
-		String chatRoomId = headerAccessor.getSessionAttributes().get("chatRoomId").toString();
 		instantMessage.setFromUser(principal.getName());
 		instantMessage.setChatRoomId(chatRoomId);
 
