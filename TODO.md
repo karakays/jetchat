@@ -1,10 +1,21 @@
-## Features
+## Roadmap
 
-### Search text in channels
+* How are RabbitMQ exchanges and queues are used?
+  - What happens to message queues on expired sessions?
+  - What happens stomp relay brokers on expired sessions?
+  - Spring session integration with Websocket 
 
-### Search users
+* Create a new channel
 
+* How is websocket security established?
+  - Relation to session cookies
 
-## Spike
+* Search bar on top
+  - Search text in channels (cassandra)
+  - Search users
 
-### Websocket sessions vs. http sessions?
+* Pagination in message history
+
+* Private message channels (1-1)
+
+* redis storge in session

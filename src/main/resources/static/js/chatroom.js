@@ -32,33 +32,42 @@ function stompFailure(error) {
 }
 
 function joinChannel(channelId) {
-	console.log('stomp ', stompClient)
+	console.log('stomp ', stompClient);
 	console.log('stomp-json ', JSON.stringify(stompClient));
 
-    // get current users/message history from subscription response
-    stompClient.subscribe('/chatroom/' + channelId + '/connected.users', updateConnectedUsers);
-    stompClient.subscribe('/chatroom/' + channelId + '/old.messages', oldMessages);
+    if(!hasChannel(channelId)) {
+        // get current users/message history from subscription response
+        stompClient.subscribe('/chatroom/' + channelId + '/connected.users', function(response) {
+            updateConnectedUsers(response, channelId);
+        });
+        stompClient.subscribe('/chatroom/' + channelId + '/old.messages', oldMessages);
 
-    // subscribe to topics
-    stompClient.subscribe('/topic/' + channelId + '.public.messages', publicMessages);
-    stompClient.subscribe('/user/queue/' + channelId + '.private.messages', privateMessages);
-    stompClient.subscribe('/topic/' + channelId + '.connected.users', updateConnectedUsers);
+        // subscribe to topics
+        stompClient.subscribe('/topic/' + channelId + '.public.messages', publicMessages);
+        stompClient.subscribe('/user/queue/' + channelId + '.private.messages', privateMessages);
+        stompClient.subscribe('/topic/' + channelId + '.connected.users', function(response) {
+            updateConnectedUsers(response, channelId);
+        });
 
-    sessionStorage.setItem('jetchat:currentChannel', channelId);
-    channels.push(channelId);
-	sessionStorage.setItem('jetchat:channels', JSON.stringify(channels));
+        addChannel(channelId);
+    }
+    setCurrentChannel(channelId);
 }
 
 function disconnect() {
     if (stompClient != null) {
         stompClient.disconnect();
     }
-    window.location.href = "/chat";
+    window.location.href = "/login";
 }
 
-function updateConnectedUsers(response) {
+function updateConnectedUsers(response, channelId) {
     var connectedUsers = JSON.parse(response.body);
-    var $tbody = $("#users").html("");
+    var $users = $("#users-panel-" + channelId).html("")
+    var $table = $("<table />")
+    var $tbody = $("<tbody />")
+    $table.append($tbody);
+    $users.append($table);
 
     $.each(connectedUsers, function(index, connectedUser) {
         var $tr = $("<tr />");
@@ -66,17 +75,14 @@ function updateConnectedUsers(response) {
             "class" : "users",
             "text" : connectedUser.username
         });
+        $tr.click(function() {
+            $(this).addClass('selected').siblings().removeClass('selected');
+            var value=$(this).find('td:first').html();
+            spanSendTo.text(value);
+        });
         $td.appendTo($tr);
         $tr.appendTo($tbody);
     });
-
-    $("#users").children("tr").click(function() {
-        $(this).addClass('selected').siblings().removeClass('selected');
-        var value=$(this).find('td:first').html();
-        spanSendTo.text(value);
-    });
-
-//    bindConnectedUsers();
 }
 
 function oldMessages(response) {
@@ -96,12 +102,12 @@ function oldMessages(response) {
 function publicMessages(message) {
     var instantMessage = JSON.parse(message.body);
     appendPublicMessage(instantMessage);
-
+    $("#channels").find("#" + instantMessage.chatRoomId).children("td").css("font-weight","bold");
     scrollDownMessagesPanel();
 }
 
 function appendPublicMessage(instantMessage) {
-    messages = $("#messages-" + sessionStorage.getItem('jetchat:currentChannel'));
+    messages = $("#messages-" + instantMessage.chatRoomId);
     console.log('found message-panel: ' + messages);
     if (instantMessage.fromUser == "admin") {
         messages
@@ -169,6 +175,7 @@ function checkEnter(e) {
 }
 
 function scrollDownMessagesPanel() {
+    var newMessages = $("#newMessages");
     newMessages.animate({"scrollTop": newMessages[0].scrollHeight}, "fast");
 }
 

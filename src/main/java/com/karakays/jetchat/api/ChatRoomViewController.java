@@ -30,7 +30,7 @@ import java.util.List;
 
 @Slf4j
 @Controller
-public class ChatRoomController {
+public class ChatRoomViewController {
 
 	private final ChatRoomService chatRoomService;
 
@@ -38,8 +38,8 @@ public class ChatRoomController {
 
 	private final HttpSession session;
 
-	public ChatRoomController(ChatRoomService chatRoomService, InstantMessageService instantMessageService,
-							   HttpSession httpSession) {
+	public ChatRoomViewController(ChatRoomService chatRoomService, InstantMessageService instantMessageService,
+								  HttpSession httpSession) {
 		this.chatRoomService = chatRoomService;
 		this.instantMessageService = instantMessageService;
 		this.session = httpSession;
@@ -53,10 +53,10 @@ public class ChatRoomController {
 		return chatRoomService.save(chatRoom);
 	}
 
-	@RequestMapping("/chatroom/{chatRoomId}")
-	public ModelAndView join(@PathVariable String chatRoomId, Principal principal) {
+	@RequestMapping("/chatroom")
+	public ModelAndView join(Principal principal) {
 		ModelAndView modelAndView = new ModelAndView("chatroom");
-		modelAndView.addObject("chatRoom", chatRoomService.findById(chatRoomId));
+//		modelAndView.addObject("chatRoom", chatRoomService.findById(chatRoomId));
 		return modelAndView;
 	}
 

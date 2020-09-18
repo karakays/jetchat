@@ -25,7 +25,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	        .formLogin()
 	        	.loginProcessingUrl("/login")
 	        	.loginPage("/")
-	        	.defaultSuccessUrl("/chat")
+	        	.defaultSuccessUrl("/chatroom")
 	        	.and()
 	        .logout()
 	        	.logoutSuccessUrl("/")
