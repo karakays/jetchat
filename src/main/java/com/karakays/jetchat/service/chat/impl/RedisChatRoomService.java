@@ -42,7 +42,7 @@ public class RedisChatRoomService implements ChatRoomService {
 		chatRoomRepository.save(chatRoom);
 
 		sendPublicMessage(SystemMessages.welcome(chatRoom.getId(), joiningUser.getUsername()));
-		updateConnectedUsersViaWebSocket(chatRoom);
+		updateConnectedUsersViaWebSocket(List.of(chatRoom));
 		return chatRoom;
 	}
 
@@ -53,15 +53,24 @@ public class RedisChatRoomService implements ChatRoomService {
 		chatRoom.removeUser(leavingUser);
 		chatRoomRepository.save(chatRoom);
 		
-		updateConnectedUsersViaWebSocket(chatRoom);
+		updateConnectedUsersViaWebSocket(List.of(chatRoom));
 		return chatRoom;
+	}
+
+	@Override
+	public List<ChatRoom> leave(ChatRoomUser leavingUser) {
+	    List<ChatRoom> rooms = findAll();
+	    rooms.forEach(r -> r.removeUser(leavingUser));
+	    rooms = (List<ChatRoom>) chatRoomRepository.save(rooms);
+		rooms.forEach(r -> sendPublicMessage(SystemMessages.goodbye(r.getId(), leavingUser.getUsername())));
+		updateConnectedUsersViaWebSocket(rooms);
+		return rooms;
 	}
 
 	@Override
 	public void sendPublicMessage(InstantMessage instantMessage) {
 		webSocketMessagingTemplate.convertAndSend(
 				Destinations.ChatRoom.publicMessages(instantMessage.getChatRoomId()), instantMessage);
-
 		instantMessageService.appendInstantMessageToConversations(instantMessage);
 	}
 
@@ -85,9 +94,11 @@ public class RedisChatRoomService implements ChatRoomService {
 		return (List<ChatRoom>) chatRoomRepository.findAll();
 	}
 	
-	private void updateConnectedUsersViaWebSocket(ChatRoom chatRoom) {
+	private void updateConnectedUsersViaWebSocket(List<ChatRoom> chatRoom) {
+		chatRoom.forEach(r ->
 		webSocketMessagingTemplate.convertAndSend(
-				Destinations.ChatRoom.connectedUsers(chatRoom.getId()),
-				chatRoom.getConnectedUsers());
+				Destinations.ChatRoom.connectedUsers(r.getId()),
+				r.getConnectedUsers())
+		);
 	}
 }

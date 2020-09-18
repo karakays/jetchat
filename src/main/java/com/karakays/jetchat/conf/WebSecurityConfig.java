@@ -24,14 +24,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	        .csrf().disable()
 	        .formLogin()
 	        	.loginProcessingUrl("/login")
-	        	.loginPage("/")
-	        	.defaultSuccessUrl("/chatroom")
+	        	.loginPage("/login")
+	        	.defaultSuccessUrl("/")
 	        	.and()
 	        .logout()
-	        	.logoutSuccessUrl("/")
+	        	.logoutSuccessUrl("/login")
 	        	.and()
 	        .authorizeRequests()
-	        	.antMatchers("/login", "/new-account", "/").permitAll()
+	        	.antMatchers("/login", "/new-account").permitAll()
 	        	.antMatchers(HttpMethod.POST, "/chatroom").hasRole("ADMIN")
 	        	.anyRequest().authenticated();
 	}
