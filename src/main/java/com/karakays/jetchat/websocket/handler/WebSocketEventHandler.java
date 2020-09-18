@@ -26,7 +26,8 @@ public class WebSocketEventHandler {
         log.info("STOMP session created id={}, attributes={}, subscriptionId={}, user={}",
                 headers.getSessionId(), headers.getSessionAttributes(), headers.getSubscriptionId(), headers.getUser());
 
-        chatRoomService.join(joiningUser, chatRoomService.findById(chatRoomId));
+
+//        chatRoomService.join(joiningUser, chatRoomService.findById(chatRoomId));
     }
 
     @EventListener
