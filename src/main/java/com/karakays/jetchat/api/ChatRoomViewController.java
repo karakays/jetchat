@@ -53,7 +53,7 @@ public class ChatRoomViewController {
 		return chatRoomService.save(chatRoom);
 	}
 
-	@RequestMapping("/chatroom")
+	@RequestMapping("/")
 	public ModelAndView join(Principal principal) {
 		ModelAndView modelAndView = new ModelAndView("chatroom");
 //		modelAndView.addObject("chatRoom", chatRoomService.findById(chatRoomId));

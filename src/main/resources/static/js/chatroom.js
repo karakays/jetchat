@@ -63,25 +63,18 @@ function disconnect() {
 
 function updateConnectedUsers(response, channelId) {
     var connectedUsers = JSON.parse(response.body);
-    var $users = $("#users-panel-" + channelId).html("")
-    var $table = $("<table />")
-    var $tbody = $("<tbody />")
-    $table.append($tbody);
-    $users.append($table);
+
+    var $users = $("#users-panel-body-" + channelId).html("");
+    var $userListGroup = $("<ul class='list-group list-group-flush'/>");
+    $users.append($userListGroup);
 
     $.each(connectedUsers, function(index, connectedUser) {
-        var $tr = $("<tr />");
-        var $td = $('<td />', {
-            "class" : "users",
-            "text" : connectedUser.username
+        var $elem = $("<li class='list-group-item list-group-item-action'/>");
+        $elem.text(connectedUser.username);
+        $elem.click(function() {
+            spanSendTo.text($(this).text());
         });
-        $tr.click(function() {
-            $(this).addClass('selected').siblings().removeClass('selected');
-            var value=$(this).find('td:first').html();
-            spanSendTo.text(value);
-        });
-        $td.appendTo($tr);
-        $tr.appendTo($tbody);
+        $userListGroup.append($elem);
     });
 }
 
@@ -110,12 +103,13 @@ function appendPublicMessage(instantMessage) {
     messages = $("#messages-" + instantMessage.chatRoomId);
     console.log('found message-panel: ' + messages);
     if (instantMessage.fromUser == "admin") {
-        messages
-        .append(new Date(instantMessage.date).toUTCString() + ' <p class="alert alert-warning"><strong>' + instantMessage.fromUser + '</strong>: ' +
-                instantMessage.text + '</p>')
+        var $message = $("<p class='alert alert-warning'><strong>" + instantMessage.fromUser + "</strong> <small> "
+            + new Date(instantMessage.date).toLocaleTimeString() + "</small> </br>" + instantMessage.text + "</p>");
+        messages.append($message);
     } else {
-        messages
-            .append(new Date(instantMessage.date).toUTCString() + " <p>" + instantMessage.fromUser + ": " + instantMessage.text + "</p>")
+        var $message = $("<p class='alert alert-primary'><strong>" + instantMessage.fromUser + "</strong> <small> "
+            + new Date(instantMessage.date).toLocaleTimeString() + "</small> </br>" + instantMessage.text + "</p>");
+        messages.append($message);
     }
 }
 
@@ -178,10 +172,6 @@ function scrollDownMessagesPanel() {
     var newMessages = $("#newMessages");
     newMessages.animate({"scrollTop": newMessages[0].scrollHeight}, "fast");
 }
-
-//function bindConnectedUsers() {
-//    $("chatroom.users").on("click", sendTo);
-//}
 
 function enableInputMessage() {
     var inputMessage = $("#message");

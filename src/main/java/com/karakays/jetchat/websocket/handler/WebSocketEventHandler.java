@@ -32,11 +32,10 @@ public class WebSocketEventHandler {
 
     @EventListener
     private void handleSessionDisconnect(SessionDisconnectEvent event) {
-        SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.wrap(event.getMessage());
-        String chatRoomId = headers.getSessionAttributes().get("chatRoomId").toString();
+//        SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.wrap(event.getMessage());
+//        String chatRoomId = headers.getSessionAttributes().get("chatRoomId").toString();
         ChatRoomUser leavingUser = new ChatRoomUser(event.getUser().getName());
-
-        chatRoomService.leave(leavingUser, chatRoomService.findById(chatRoomId));
-        log.info("STOMP session destroyed id={}", headers.getSessionId());
+        chatRoomService.leave(leavingUser);
+        log.info("STOMP session destroyed for user={}", leavingUser.getUsername());
     }
 }
